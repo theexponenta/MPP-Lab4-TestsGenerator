@@ -1,0 +1,5 @@
+<Solution>
+    <Project Path="TestsGenerator.Core/TestsGenerator.Core.csproj" />
+    <Project Path="TestsGenerator.Application/TestsGenerator.Application.csproj" />
+    <Project Path="TestsGenerator.Tests/TestsGenerator.Tests.csproj" />
+</Solution>
