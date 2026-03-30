@@ -34,7 +34,7 @@ class Program
         var generator = new PipelineTestsGenerator(options.MaxGenerateTasks, writer);
 
         var readFilesBlock = new TransformBlock<string, string>(
-            ReadFileAsStringAsync,
+            ReadFile,
             new ExecutionDataflowBlockOptions{ MaxDegreeOfParallelism = options.MaxReadTasks }
         );
 
@@ -51,7 +51,7 @@ class Program
         return 0;
     }
 
-    private static async Task<string> ReadFileAsStringAsync(string filePath)
+    private static async Task<string> ReadFile(string filePath)
     {
         return await File.ReadAllTextAsync(filePath);
     }
@@ -161,36 +161,36 @@ class Program
         
         error = string.Empty;
         return true;
+    }
 
-        static bool TryGetString(string[] a, ref int i, out string? value)
+    private static bool TryGetString(string[] a, ref int i, out string? value)
+    {
+        value = null;
+        if (i + 1 >= a.Length) 
         {
-            value = null;
-            if (i + 1 >= a.Length) 
-            {
-                return false;
-            }
-
-            value = a[++i];
-            return true;
+            return false;
         }
 
-        static bool TryGetInt(string[] a, ref int i, out int? value)
+        value = a[++i];
+        return true;
+    }
+
+    private static bool TryGetInt(string[] a, ref int i, out int? value)
+    {
+        value = null;
+        if (i + 1 >= a.Length) 
         {
-            value = null;
-            if (i + 1 >= a.Length) 
-            {
-                return false;
-            }
-
-            var raw = a[++i];
-            if (!int.TryParse(raw, out var parsed)) 
-            {
-                return false;
-            }
-
-            value = parsed;
-            return true;
+            return false;
         }
+
+        var raw = a[++i];
+        if (!int.TryParse(raw, out var parsed)) 
+        {
+            return false;
+        }
+
+        value = parsed;
+        return true;
     }
 }
 
