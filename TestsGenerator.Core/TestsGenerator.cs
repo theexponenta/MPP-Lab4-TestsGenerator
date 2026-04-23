@@ -29,10 +29,10 @@ public static class TestsGenerator
             var ctorParams = GetConstructorParameters(classDecl);
             var dependencies  = ctorParams
                 .Select(p => new DependencyInfo(
-                    typeName : p.Type!.ToString(),
-                    paramName: p.Identifier.Text,
-                    isInterface: IsInterfaceName(p.Type!.ToString())))
-                .ToList();
+                    p.Type!.ToString(),
+                    p.Identifier.Text,
+                    IsInterfaceName(p.Type!.ToString()))
+                ).ToList();
  
             bool hasMocks = dependencies.Any(d => d.IsInterface);
  
@@ -55,12 +55,7 @@ public static class TestsGenerator
             }
  
             classMembers.Add(
-                BuildSetUpConstructor(
-                    testClassName: $"{className}Tests",
-                    className    : className,
-                    sutField     : sutField,
-                    dependencies : dependencies
-                )
+                BuildSetUpConstructor($"{className}Tests", className, sutField, dependencies)
             );
  
             foreach (var overload in methodOverloads)
@@ -271,8 +266,7 @@ public static class TestsGenerator
  
     private static bool IsInterfaceName(string typeName)
     {
-        var baseName = typeName.Split('<')[0].Trim();
-        return baseName.Length >= 2 && baseName[0] == 'I' && char.IsUpper(baseName[1]);
+        return typeName.Length >= 2 && typeName[0] == 'I' && char.IsUpper(typeName[1]);
     }
      private static bool IsVoidReturn(TypeSyntax returnType) =>
         returnType is PredefinedTypeSyntax p && p.Keyword.IsKind(SyntaxKind.VoidKeyword);

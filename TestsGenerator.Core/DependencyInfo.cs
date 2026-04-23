@@ -1,3 +1,4 @@
+namespace TestsGenerator.Core;
 
 internal class DependencyInfo
 {
