@@ -8,12 +8,16 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 public static class TestsGenerator
-{ 
-    public static List<GeneratorOutput> GenerateTests(string source)
-    {
-        var results = new List<GeneratorOutput>();
- 
-        var syntaxTree = CSharpSyntaxTree.ParseText(source);
+{
+
+    public static IEnumerable<GeneratorOutput> GenerateTests(string source)
+    { 
+        SyntaxTree? syntaxTree = CSharpSyntaxTree.ParseText(source);
+        if (syntaxTree == null)
+        {
+            yield break;
+        }
+
         var root = syntaxTree.GetCompilationUnitRoot();
         var originalUsings = root.Usings;
  
@@ -90,10 +94,8 @@ public static class TestsGenerator
                         .AddMembers(testClass))
                 .NormalizeWhitespace();
  
-            results.Add(new GeneratorOutput(className, cu.ToFullString()));
+            yield return new GeneratorOutput(className, cu.ToFullString());
         }
- 
-        return results;
     }
 
     private static FieldDeclarationSyntax BuildField(string typeName, string fieldName) =>

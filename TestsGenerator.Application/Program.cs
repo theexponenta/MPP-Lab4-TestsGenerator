@@ -33,7 +33,7 @@ class Program
         var writer = new FileSystemOutputHandler(options.OutputDirectory, options.MaxWriteTasks);
         var generator = new PipelineTestsGenerator(options.MaxGenerateTasks, writer);
 
-        var readFilesBlock = new TransformBlock<string, string>(
+        var readFilesBlock = new TransformBlock<string, GeneratorResult<SourceCode, Exception>>(
             ReadFile,
             new ExecutionDataflowBlockOptions{ MaxDegreeOfParallelism = options.MaxReadTasks }
         );
@@ -51,9 +51,16 @@ class Program
         return 0;
     }
 
-    private static async Task<string> ReadFile(string filePath)
+    private static async Task<GeneratorResult<SourceCode, Exception>> ReadFile(string filePath)
     {
-        return await File.ReadAllTextAsync(filePath);
+        string source = await File.ReadAllTextAsync(filePath);
+        try
+        {
+            return new GeneratorResult<SourceCode, Exception>(new SourceCode(filePath, source), null);    
+        } catch (Exception e)
+        {
+            return new GeneratorResult<SourceCode, Exception>(null, e);    
+        }
     }
 
     private static bool TryParseArgs(

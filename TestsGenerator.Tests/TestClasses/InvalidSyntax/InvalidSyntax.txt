@@ -1,0 +1,6 @@
+
+class InvalidSyntax 
+{
+    public int a
+    public int b;
+}

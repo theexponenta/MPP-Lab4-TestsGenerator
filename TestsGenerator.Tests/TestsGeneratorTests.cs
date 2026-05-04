@@ -2,16 +2,26 @@
 
 using TestsGenerator.Core;
 
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+
 public class TestsGeneratorTests
 {
     private static string LoadTestClassSource(string fileName) =>
         File.ReadAllText(Path.Join(AppContext.BaseDirectory, "TestClasses", fileName));
 
     [Fact]
+    public void TestIncorrectSyntax()
+    {
+        CSharpSyntaxTree.ParseText("var x = ");
+    }
+
+    [Fact]
     public void TestSinglePublicClass()
     {
         var source = LoadTestClassSource("SinglePublicClass.cs");
-        var results = TestsGenerator.GenerateTests(source);
+        var results = TestsGenerator.GenerateTests(source).ToList();
 
         Assert.Single(results);
         var output = results[0];
@@ -35,7 +45,7 @@ public class TestsGeneratorTests
     public void TestTwoPublicClassesInOneFile()
     {
         var source = LoadTestClassSource("TwoPublicClasses.cs");
-        var results = TestsGenerator.GenerateTests(source);
+        var results = TestsGenerator.GenerateTests(source).ToList();
 
         Assert.Equal(2, results.Count);
         var names = results.Select(r => r.ClassName).OrderBy(n => n).ToArray();
@@ -53,7 +63,7 @@ public class TestsGeneratorTests
     public void TestOnlyInternalClass()
     {
         var source = LoadTestClassSource("InternalOnly.cs");
-        var results = TestsGenerator.GenerateTests(source);
+        var results = TestsGenerator.GenerateTests(source).ToList();
 
         Assert.Empty(results);
     }
@@ -62,7 +72,7 @@ public class TestsGeneratorTests
     public void TestOverloadedMethods()
     {
         var source = LoadTestClassSource("MethodOverloads.cs");
-        var results = TestsGenerator.GenerateTests(source);
+        var results = TestsGenerator.GenerateTests(source).ToList();
 
         Assert.Single(results);
         Assert.Equal("OverloadedMethods", results[0].ClassName);
@@ -81,7 +91,7 @@ public class TestsGeneratorTests
     public void TestConstructorWithInterface()
     {
         var source = LoadTestClassSource("ClassWithInterfaceDependency.cs");
-        var results = TestsGenerator.GenerateTests(source);
+        var results = TestsGenerator.GenerateTests(source).ToList();
 
         var dataService = Assert.Single(results, r => r.ClassName == "ClassWithDependency");
 
@@ -103,7 +113,7 @@ public class TestsGeneratorTests
     public void TestFileScopedNamespace()
     {
         var source = LoadTestClassSource("FileScopedNamespace.cs");
-        var results = TestsGenerator.GenerateTests(source);
+        var results = TestsGenerator.GenerateTests(source).ToList();
 
         Assert.Single(results);
         Assert.Equal("FileScopedNamespace", results[0].ClassName);
